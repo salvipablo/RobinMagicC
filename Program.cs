@@ -1,23 +1,27 @@
-﻿namespace RobinMagicC;
+﻿using RobinMagicC.Characters;
+
+namespace RobinMagicC;
 
 class Program
 {
   public static int screenWidth = 10;
   public static int screenHight = 7;
   public static bool exitGame = false;
-
+  
   static void Main(string[] args)
   {
+    MainPlayer mainPlayer = MainPlayer.GetInstance();
+
     Console.Clear();
     Console.WriteLine("**** Bienvenido a Robin Magic ****");
     Console.WriteLine("F1 - Salir");
-
-    ScreenRender();
-
+    
     while(!exitGame)
     {
-      
-      ConsoleKeyInfo keyPressed = Console.ReadKey(true);
+      // Muestro la pantalla
+      ScreenRender(mainPlayer);
+
+      ConsoleKeyInfo keyPressed = Console.ReadKey(false);
       
       switch (keyPressed.Key)
       {
@@ -26,20 +30,29 @@ class Program
           break;
 
         case ConsoleKey.LeftArrow:
+          mainPlayer.MovePlayer("left");
           break;
 
         case ConsoleKey.RightArrow:
+          mainPlayer.MovePlayer("right");
+          break;
+
+        case ConsoleKey.UpArrow:
+          mainPlayer.MovePlayer("up");
+          break;
+
+        case ConsoleKey.DownArrow:
+          mainPlayer.MovePlayer("down");
           break;
       }
-
-      //ScreenRender();
     }
   }
 
-  private static void ScreenRender()
+  private static void ScreenRender(MainPlayer mainPlayer)
   {
     Console.ForegroundColor = ConsoleColor.Green;
 
+    // Dibujo el mapa del juego.
     for (int x = 0; x < screenWidth; x++)
     {
       for (int y = 2; y < screenHight; y++)
@@ -49,8 +62,18 @@ class Program
       }
     }
 
-    Console.SetCursorPosition(2, 3);
+    // Tomo la posicion del personaje en variable, para usarla mas facil en adelante.
+    int xPlayer = mainPlayer.CurrentPosition.X;
+    int yPlayer = mainPlayer.CurrentPosition.Y;
+
     Console.ForegroundColor = ConsoleColor.Gray;
-    Console.Write("1");
+    
+    // Dibujo al personaje.
+    Console.SetCursorPosition(xPlayer, yPlayer);
+    Console.Write(mainPlayer.CurrentLevel.ToString());
+
+    // Muestro la posicion del personaje.
+    Console.SetCursorPosition(20, 2);
+    Console.Write($"X: {xPlayer}. -- Y: {yPlayer}");
   }
 }
