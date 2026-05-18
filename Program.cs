@@ -7,24 +7,19 @@ namespace RobinMagicC;
 class Program
 {
   public static bool exitGame = false;
-  
+  public static bool DidCharacterMove = false;
+
   static void Main(string[] args)
   {
-    Console.Clear();
-
-    Version? versionEstandar = Assembly.GetEntryAssembly()?.GetName().Version;
-
-    MainPlayer mainPlayer = MainPlayer.GetInstance();
+    MainPlayer mainPlayer = MainPlayer.GetInstance(20, 5);
     GameMap gameMap = GameMap.GetInstance();
-
-    Console.WriteLine($"**** Bienvenido a Robin Magic - Versión: {versionEstandar} ****");
-    Console.WriteLine("F1 - Salir");
+    InitializeGame(mainPlayer, gameMap);
     
     while(!exitGame)
     {
-      // Muestro la pantalla
-      ScreenRender(mainPlayer, gameMap);
+      if (DidCharacterMove) ScreenRender(mainPlayer, gameMap);
 
+      DidCharacterMove = false;
       ConsoleKeyInfo keyPressed = Console.ReadKey(false);
       
       switch (keyPressed.Key)
@@ -49,11 +44,47 @@ class Program
           if (mainPlayer.CurrentPosition.Y < gameMap.screenHight - 1) mainPlayer.MovePlayer("down");
           break;
       }
+
+      if (mainPlayer.CurrentPosition != mainPlayer.PreviousPosition) DidCharacterMove = true;
     }
   }
 
   private static void ScreenRender(MainPlayer mainPlayer, GameMap gameMap)
   {
+    // Tomo la posicion del personaje en variable, para usarla mas facil en adelante.
+    int xCurrentPlayer = mainPlayer.CurrentPosition.X;
+    int yCurrentPlayer = mainPlayer.CurrentPosition.Y;
+
+    int xPreviousPlayer = mainPlayer.PreviousPosition.X;
+    int yPreviousPlayer = mainPlayer.PreviousPosition.Y;
+
+    
+    // Dibujo al personaje.
+    Console.ForegroundColor = ConsoleColor.Gray;
+    Console.SetCursorPosition(xCurrentPlayer, yCurrentPlayer);
+    Console.Write(mainPlayer.CurrentLevel.ToString());
+
+    // Dibujo caracter de la posicion anterior del personaje
+    Console.ForegroundColor = ConsoleColor.Green;
+    string charPreviousPlayer = gameMap.getCharTypeSector(xPreviousPlayer, yPreviousPlayer);
+    Console.SetCursorPosition(xPreviousPlayer, yPreviousPlayer);
+    Console.Write(charPreviousPlayer);
+
+    // Muestro la posicion del personaje.
+    Console.ForegroundColor = ConsoleColor.Gray;
+    Console.SetCursorPosition(gameMap.screenWidth + 3, 2);
+    Console.Write($"X: {xCurrentPlayer}. -- Y: {yCurrentPlayer}    ");
+  }
+
+  private static void InitializeGame(MainPlayer mainPlayer, GameMap gameMap)
+  {
+    Console.Clear();
+
+    Version? versionEstandar = Assembly.GetEntryAssembly()?.GetName().Version;
+
+    Console.WriteLine($"**** Bienvenido a Robin Magic - Versión: {versionEstandar} ****");
+    Console.WriteLine("F1 - Salir");
+
     Console.ForegroundColor = ConsoleColor.Green;
 
     // Dibujo el mapa del juego.
@@ -71,7 +102,7 @@ class Program
     int yPlayer = mainPlayer.CurrentPosition.Y;
 
     Console.ForegroundColor = ConsoleColor.Gray;
-    
+
     // Dibujo al personaje.
     Console.SetCursorPosition(xPlayer, yPlayer);
     Console.Write(mainPlayer.CurrentLevel.ToString());

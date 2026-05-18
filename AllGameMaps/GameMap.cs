@@ -3,7 +3,7 @@
 internal class GameMap
 {
   public static GameMap _instance;
-  public int screenWidth = 30;
+  public int screenWidth = 50;
   public int screenHight = 22;
   public Sector[,] MapSectors;
 
