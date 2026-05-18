@@ -1,4 +1,5 @@
 ﻿using RobinMagicC.Characters;
+using System.Reflection;
 
 namespace RobinMagicC;
 
@@ -10,10 +11,13 @@ class Program
   
   static void Main(string[] args)
   {
+    Console.Clear();
+
+    Version? versionEstandar = Assembly.GetEntryAssembly()?.GetName().Version;
+
     MainPlayer mainPlayer = MainPlayer.GetInstance();
 
-    Console.Clear();
-    Console.WriteLine("**** Bienvenido a Robin Magic ****");
+    Console.WriteLine($"**** Bienvenido a Robin Magic - Versión: {versionEstandar} ****");
     Console.WriteLine("F1 - Salir");
     
     while(!exitGame)
