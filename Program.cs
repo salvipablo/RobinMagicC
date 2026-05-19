@@ -8,9 +8,14 @@ class Program
 {
   public static bool exitGame = false;
   public static bool DidCharacterMove = false;
+  public static int CameraX = 0;
+  public static int CameraY = 0;
 
   static void Main(string[] args)
   {
+    Console.Clear();
+    Console.CursorVisible = false;
+
     MainPlayer mainPlayer = MainPlayer.GetInstance(20, 5);
     GameMap gameMap = GameMap.GetInstance();
     InitializeGame(mainPlayer, gameMap);
@@ -29,86 +34,102 @@ class Program
           break;
 
         case ConsoleKey.LeftArrow:
-          if (mainPlayer.CurrentPosition.X > 0) mainPlayer.MovePlayer("left");
+          mainPlayer.MovePlayer("left");
           break;
 
         case ConsoleKey.RightArrow:
-          if (mainPlayer.CurrentPosition.X < gameMap.screenWidth - 1) mainPlayer.MovePlayer("right");
+          mainPlayer.MovePlayer("right");
           break;
 
         case ConsoleKey.UpArrow:
-          if (mainPlayer.CurrentPosition.Y > 2)  mainPlayer.MovePlayer("up");
+          mainPlayer.MovePlayer("up");
           break;
 
         case ConsoleKey.DownArrow:
-          if (mainPlayer.CurrentPosition.Y < gameMap.screenHight - 1) mainPlayer.MovePlayer("down");
+          mainPlayer.MovePlayer("down");
           break;
       }
 
-      if (mainPlayer.CurrentPosition != mainPlayer.PreviousPosition) DidCharacterMove = true;
+      if (mainPlayer.CurrentPositionWorld != mainPlayer.PreviousPositionWorld) DidCharacterMove = true;
     }
   }
 
   private static void ScreenRender(MainPlayer mainPlayer, GameMap gameMap)
   {
     // Tomo la posicion del personaje en variable, para usarla mas facil en adelante.
-    int xCurrentPlayer = mainPlayer.CurrentPosition.X;
-    int yCurrentPlayer = mainPlayer.CurrentPosition.Y;
+    int xCurrentPlayerMap = mainPlayer.CurrentPositionWorld.X - CameraX;
+    int yCurrentPlayerMap = mainPlayer.CurrentPositionWorld.Y - CameraY;
 
-    int xPreviousPlayer = mainPlayer.PreviousPosition.X;
-    int yPreviousPlayer = mainPlayer.PreviousPosition.Y;
+    int xPreviousPlayerMap = mainPlayer.PreviousPositionWorld.X - CameraX;
+    int yPreviousPlayerMap = mainPlayer.PreviousPositionWorld.Y - CameraY;
 
-    
     // Dibujo al personaje.
     Console.ForegroundColor = ConsoleColor.Gray;
-    Console.SetCursorPosition(xCurrentPlayer, yCurrentPlayer);
+    Console.SetCursorPosition(xCurrentPlayerMap, yCurrentPlayerMap);
     Console.Write(mainPlayer.CurrentLevel.ToString());
 
     // Dibujo caracter de la posicion anterior del personaje
     Console.ForegroundColor = ConsoleColor.Green;
-    string charPreviousPlayer = gameMap.getCharTypeSector(xPreviousPlayer, yPreviousPlayer);
-    Console.SetCursorPosition(xPreviousPlayer, yPreviousPlayer);
+    string charPreviousPlayer = gameMap.getCharTypeSector(mainPlayer.PreviousPositionWorld.X, mainPlayer.PreviousPositionWorld.Y);
+    Console.SetCursorPosition(xPreviousPlayerMap, yPreviousPlayerMap);
     Console.Write(charPreviousPlayer);
 
     // Muestro la posicion del personaje.
     Console.ForegroundColor = ConsoleColor.Gray;
-    Console.SetCursorPosition(gameMap.screenWidth + 3, 2);
-    Console.Write($"X: {xCurrentPlayer}. -- Y: {yCurrentPlayer}    ");
+    Console.SetCursorPosition(55, 2);
+    Console.Write($"X: {mainPlayer.CurrentPositionWorld.X}. -- Y: {mainPlayer.CurrentPositionWorld.Y}");
   }
 
   private static void InitializeGame(MainPlayer mainPlayer, GameMap gameMap)
   {
-    Console.Clear();
-
     Version? versionEstandar = Assembly.GetEntryAssembly()?.GetName().Version;
 
+    Console.ForegroundColor = ConsoleColor.Gray;
     Console.WriteLine($"**** Bienvenido a Robin Magic - Versión: {versionEstandar} ****");
     Console.WriteLine("F1 - Salir");
 
-    Console.ForegroundColor = ConsoleColor.Green;
-
-    // Dibujo el mapa del juego.
-    for (int x = 0; x < gameMap.screenWidth; x++)
-    {
-      for (int y = 2; y < gameMap.screenHight; y++)
-      {
-        Console.SetCursorPosition(x, y);
-        if (gameMap.MapSectors[x, y].TypeSector.Equals("Grass")) Console.Write(gameMap.getCharTypeSector(x, y));
-      }
-    }
+    RenderMap(CameraX, CameraY, gameMap);
 
     // Tomo la posicion del personaje en variable, para usarla mas facil en adelante.
-    int xPlayer = mainPlayer.CurrentPosition.X;
-    int yPlayer = mainPlayer.CurrentPosition.Y;
+    int screenPlayerX = mainPlayer.CurrentPositionWorld.X - CameraX;
+    int screenPlayerY = mainPlayer.CurrentPositionWorld.Y - CameraY;
 
     Console.ForegroundColor = ConsoleColor.Gray;
 
     // Dibujo al personaje.
-    Console.SetCursorPosition(xPlayer, yPlayer);
+    Console.SetCursorPosition(screenPlayerX, screenPlayerY);
     Console.Write(mainPlayer.CurrentLevel.ToString());
 
     // Muestro la posicion del personaje.
-    Console.SetCursorPosition(gameMap.screenWidth + 3, 2);
-    Console.Write($"X: {xPlayer}. -- Y: {yPlayer}");
+    Console.SetCursorPosition(55, 2);
+    Console.Write($"X: {mainPlayer.CurrentPositionWorld.X}. -- Y: {mainPlayer.CurrentPositionWorld.Y}");
+  }
+
+  private static void RenderMap(int cameraX, int cameraY, GameMap gameMap)
+  {
+    int screenWidth = 50;
+    int screenHight = 22;
+
+    int cameraWorldX = cameraX;
+    int cameraWorldY = cameraY;
+
+    // Dibujo el mapa del juego.
+    for (int x = 0; x < screenWidth; x++)
+    {
+      for (int y = 2; y < screenHight + 2; y++)
+      {
+        Console.SetCursorPosition(x, y);
+        
+        if (gameMap.getCharTypeSector(cameraWorldX, cameraWorldY) == "T") Console.ForegroundColor = ConsoleColor.DarkYellow;
+        else if (gameMap.getCharTypeSector(cameraWorldX, cameraWorldY) == "A") Console.ForegroundColor = ConsoleColor.Blue;
+        else Console.ForegroundColor = ConsoleColor.Green;
+
+        Console.Write(gameMap.getCharTypeSector(cameraWorldX, cameraWorldY));
+        cameraWorldY++;
+      }
+
+      cameraWorldY = cameraY;
+      cameraWorldX++;
+    }
   }
 }

@@ -3,13 +3,13 @@
 internal class GameMap
 {
   public static GameMap _instance;
-  public int screenWidth = 50;
-  public int screenHight = 22;
+  public int GameMapWidth = 200;
+  public int GameMapHight = 56;
   public Sector[,] MapSectors;
 
   private GameMap()
   {
-    MapSectors = new Sector[screenWidth, screenHight];
+    MapSectors = new Sector[GameMapWidth, GameMapHight];
     GenerateMap();
   }
 
@@ -21,15 +21,22 @@ internal class GameMap
 
   private void GenerateMap()
   {
-    for (int x = 0; x < screenWidth; x++)
+    for (int x = 0; x < GameMapWidth; x++)
     {
-      for (int y = 2; y < screenHight; y++) MapSectors[x, y] = new Sector("Grass", null);
+      for (int y = 0; y < GameMapHight; y++)
+      {
+        if (y == 0) MapSectors[x, y] = new Sector("Land", null);
+        else if (y == 21) MapSectors[x, y] = new Sector("Water", null);
+        else MapSectors[x, y] = new Sector("Grass", null);
+      }
     }
   }
 
   public string getCharTypeSector(int x, int y)
   {
     if (MapSectors[x, y].TypeSector == "Grass") return "H";
-    return "T";
+    if (MapSectors[x, y].TypeSector == "Land") return "T";
+    if (MapSectors[x, y].TypeSector == "Water") return "A";
+    return "@";
   }
  }

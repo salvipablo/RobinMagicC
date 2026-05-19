@@ -4,15 +4,16 @@ namespace RobinMagicC.Characters;
 
 public class MainPlayer
 {
-  public Point CurrentPosition;
-  public Point PreviousPosition;
+  public Point CurrentPositionWorld;
+  public Point PreviousPositionWorld;
+  
   public int CurrentLevel = 1;
   public static MainPlayer _instance;
 
   private MainPlayer(int x, int y)
   {
-    CurrentPosition = new Point(x, y);
-    PreviousPosition = new Point(x, y);
+    CurrentPositionWorld = new Point(x, y);
+    PreviousPositionWorld = new Point(x, y);
   }
 
   public static MainPlayer GetInstance(int x, int y)
@@ -23,10 +24,10 @@ public class MainPlayer
 
   public void MovePlayer(string direction)
   {
-    PreviousPosition = CurrentPosition;
-    if (direction.Equals("left")) CurrentPosition.X -= 1;
-    if (direction.Equals("right")) CurrentPosition.X += 1;
-    if (direction.Equals("up")) CurrentPosition.Y -= 1;
-    if (direction.Equals("down")) CurrentPosition.Y += 1;
+    PreviousPositionWorld = CurrentPositionWorld;
+    if (direction.Equals("left")) CurrentPositionWorld.X -= 1;
+    if (direction.Equals("right")) CurrentPositionWorld.X += 1;
+    if (direction.Equals("up")) CurrentPositionWorld.Y -= 1;
+    if (direction.Equals("down")) CurrentPositionWorld.Y += 1;
   }
 }
