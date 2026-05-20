@@ -9,8 +9,8 @@ class Program
 {
   public static bool exitGame = false;
   public static bool DidCharacterMove = false;
-  public static int CurrentPositionChScreenX = 20;
-  public static int CurrentPositionChScreenY = 5;
+  public static int CurrentPositionChScreenX = 2;
+  public static int CurrentPositionChScreenY = 2;
   public static int PreviousPositionChScreenX = 20;
   public static int PreviousPositionChScreenY = 5;
   public static bool CrossAMapBorder = false;
@@ -26,7 +26,11 @@ class Program
     
     while(!exitGame)
     {
-      if (CrossAMapBorder) RenderMap(gameMap, mainPlayer.CurrentPositionWorld);
+      if (CrossAMapBorder)
+      {
+        RenderMap(gameMap, mainPlayer.CurrentPositionWorld);
+      }
+
       if (DidCharacterMove) ScreenRender(mainPlayer, gameMap);
 
       DidCharacterMove = false;
@@ -125,19 +129,30 @@ class Program
     
     int intialCameraWorldY = cameraWorldY;
 
+    char symbolItem = '-';
     // Dibujo el mapa del juego.
     for (int x = 0; x < screenWidth; x++)
     {
       for (int y = 0; y < screenHeight; y++)
       {
         Console.SetCursorPosition(x, y);
-        
-        if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "T") Console.ForegroundColor = ConsoleColor.DarkYellow;
-        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "A") Console.ForegroundColor = ConsoleColor.Blue;
-        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "P") Console.ForegroundColor = ConsoleColor.Yellow;
+
+        if (gameMap.ItemExists(cameraWorldX, cameraWorldY)) symbolItem = gameMap.GetSymbolItem(cameraWorldX, cameraWorldY);
+        else symbolItem = '-';
+
+        if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "L") Console.ForegroundColor = ConsoleColor.DarkYellow;
+        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "W") Console.ForegroundColor = ConsoleColor.Blue;
+        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "S") Console.ForegroundColor = ConsoleColor.Yellow;
+        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "C") Console.ForegroundColor = ConsoleColor.Gray;
         else Console.ForegroundColor = ConsoleColor.Green;
 
-        Console.Write(gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY));
+        if (symbolItem != '-')
+        {
+          Console.ForegroundColor = ConsoleColor.Gray;
+          Console.Write(symbolItem);
+        }
+        else Console.Write(gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY));
+
         cameraWorldY++;
       }
 
