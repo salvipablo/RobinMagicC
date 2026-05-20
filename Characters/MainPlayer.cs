@@ -8,7 +8,7 @@ public class MainPlayer
   public Point PreviousPositionWorld;
   
   public int CurrentLevel = 1;
-  public static MainPlayer _instance;
+  private static MainPlayer? _instance;
 
   private MainPlayer(int x, int y)
   {
