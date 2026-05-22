@@ -10,10 +10,10 @@ class Program
   #region Properties
   public static bool exitGame = false;
   public static bool DidCharacterMove = false;
-  public static int CurrentPositionChScreenX = 14;
-  public static int CurrentPositionChScreenY = 3;
-  public static int PreviousPositionChScreenX = 20;
-  public static int PreviousPositionChScreenY = 5;
+  public static int CurrentPositionChScreenX = 8;
+  public static int CurrentPositionChScreenY = 1;
+  public static int PreviousPositionChScreenX;
+  public static int PreviousPositionChScreenY;
   public static bool CrossAMapBorder = false;
   #endregion
 
@@ -59,11 +59,17 @@ class Program
 
   private static void ScreenRender(MainPlayer mainPlayer, GameMap gameMap)
   {
+    char symbolItem;
+    if (gameMap.ItemName(mainPlayer.PreviousPositionWorld.X, mainPlayer.PreviousPositionWorld.Y).Equals("Empty"))
+    {
+      symbolItem = gameMap.GetCharTypeSector(mainPlayer.PreviousPositionWorld.X, mainPlayer.PreviousPositionWorld.Y);
+    } else symbolItem = gameMap.GetSymbolItem(mainPlayer.PreviousPositionWorld.X, mainPlayer.PreviousPositionWorld.Y);
+
+    SetSymbolColor(symbolItem);
+
     // Dibujo caracter de la posicion anterior del personaje
-    Console.ForegroundColor = ConsoleColor.Green;
-    char charPreviousPlayer = gameMap.GetCharTypeSector(mainPlayer.PreviousPositionWorld.X, mainPlayer.PreviousPositionWorld.Y);
     Console.SetCursorPosition(PreviousPositionChScreenX, PreviousPositionChScreenY);
-    Console.Write(charPreviousPlayer);
+    Console.Write(symbolItem);
 
     // Dibujo al personaje.
     Console.ForegroundColor = ConsoleColor.Gray;
@@ -119,16 +125,7 @@ class Program
         if (gameMap.ItemName(cameraWorldX, cameraWorldY).Equals("Empty")) symbolItem = gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY);
         else symbolItem = gameMap.GetSymbolItem(cameraWorldX, cameraWorldY);
 
-        if (symbolItem == 'L') Console.ForegroundColor = ConsoleColor.DarkYellow;
-        else if (symbolItem == 'W') Console.ForegroundColor = ConsoleColor.Blue;
-        else if (symbolItem == 'S') Console.ForegroundColor = ConsoleColor.Yellow;
-        else if (symbolItem == 'C') Console.ForegroundColor = ConsoleColor.Gray;
-        else if (symbolItem == 'P') Console.ForegroundColor = ConsoleColor.Cyan;
-        else if (symbolItem == 'D') Console.ForegroundColor = ConsoleColor.Red;
-        else if (symbolItem == 'O') Console.ForegroundColor = ConsoleColor.Yellow;
-        else if (symbolItem == 'T') Console.ForegroundColor = ConsoleColor.Magenta;
-        else Console.ForegroundColor = ConsoleColor.Green;
-
+        SetSymbolColor(symbolItem);
         Console.Write(symbolItem);
 
         cameraWorldY++;
@@ -192,6 +189,19 @@ class Program
         CurrentPositionChScreenY += 1;
         break;
     }
+  }
+
+  private static void SetSymbolColor(char symbolItem)
+  {
+    if (symbolItem == 'L') Console.ForegroundColor = ConsoleColor.DarkYellow;
+    else if (symbolItem == 'W') Console.ForegroundColor = ConsoleColor.Blue;
+    else if (symbolItem == 'S') Console.ForegroundColor = ConsoleColor.Yellow;
+    else if (symbolItem == 'C') Console.ForegroundColor = ConsoleColor.Gray;
+    else if (symbolItem == 'P') Console.ForegroundColor = ConsoleColor.Cyan;
+    else if (symbolItem == 'D') Console.ForegroundColor = ConsoleColor.Red;
+    else if (symbolItem == 'O') Console.ForegroundColor = ConsoleColor.Yellow;
+    else if (symbolItem == 'T') Console.ForegroundColor = ConsoleColor.Magenta;
+    else Console.ForegroundColor = ConsoleColor.Green;
   }
   #endregion
 }
