@@ -4,12 +4,15 @@ namespace RobinMagicC.Characters;
 
 public class MainPlayer
 {
+  #region Properties
   public Point CurrentPositionWorld;
   public Point PreviousPositionWorld;
   
   public int CurrentLevel = 1;
   private static MainPlayer? _instance;
+  #endregion
 
+  #region Methods
   private MainPlayer(int x, int y)
   {
     CurrentPositionWorld = new Point(x, y);
@@ -30,4 +33,5 @@ public class MainPlayer
     if (direction.Equals("up")) CurrentPositionWorld.Y -= 1;
     if (direction.Equals("down")) CurrentPositionWorld.Y += 1;
   }
+  #endregion
 }

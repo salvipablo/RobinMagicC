@@ -7,14 +7,17 @@ namespace RobinMagicC;
 
 class Program
 {
+  #region Properties
   public static bool exitGame = false;
   public static bool DidCharacterMove = false;
-  public static int CurrentPositionChScreenX = 2;
-  public static int CurrentPositionChScreenY = 2;
+  public static int CurrentPositionChScreenX = 14;
+  public static int CurrentPositionChScreenY = 3;
   public static int PreviousPositionChScreenX = 20;
   public static int PreviousPositionChScreenY = 5;
   public static bool CrossAMapBorder = false;
+  #endregion
 
+  #region Methods
   static void Main()
   {
     Console.Clear();
@@ -35,37 +38,13 @@ class Program
 
       DidCharacterMove = false;
       CrossAMapBorder = false;
-      ConsoleKeyInfo keyPressed = Console.ReadKey(false);
+
+      ConsoleKeyInfo KeyPressed = Console.ReadKey(false);
 
       PreviousPositionChScreenX = CurrentPositionChScreenX;
       PreviousPositionChScreenY = CurrentPositionChScreenY;
 
-      switch (keyPressed.Key)
-      {
-        case ConsoleKey.F1:
-          exitGame = true;
-          break;
-
-        case ConsoleKey.LeftArrow:
-          mainPlayer.MovePlayer("left");
-          CurrentPositionChScreenX -= 1;
-          break;
-
-        case ConsoleKey.RightArrow:
-          mainPlayer.MovePlayer("right");
-          CurrentPositionChScreenX += 1;
-          break;
-
-        case ConsoleKey.UpArrow:
-          mainPlayer.MovePlayer("up");
-          CurrentPositionChScreenY -= 1;
-          break;
-
-        case ConsoleKey.DownArrow:
-          mainPlayer.MovePlayer("down");
-          CurrentPositionChScreenY += 1;
-          break;
-      }
+      CheckKeyPressed(KeyPressed, mainPlayer, gameMap);
 
       if (CurrentPositionChScreenX > 49 || CurrentPositionChScreenX < 0 || CurrentPositionChScreenY > 19 || CurrentPositionChScreenY < 0) CrossAMapBorder = true;
 
@@ -82,7 +61,7 @@ class Program
   {
     // Dibujo caracter de la posicion anterior del personaje
     Console.ForegroundColor = ConsoleColor.Green;
-    string charPreviousPlayer = gameMap.GetCharTypeSector(mainPlayer.PreviousPositionWorld.X, mainPlayer.PreviousPositionWorld.Y);
+    char charPreviousPlayer = gameMap.GetCharTypeSector(mainPlayer.PreviousPositionWorld.X, mainPlayer.PreviousPositionWorld.Y);
     Console.SetCursorPosition(PreviousPositionChScreenX, PreviousPositionChScreenY);
     Console.Write(charPreviousPlayer);
 
@@ -129,29 +108,28 @@ class Program
     
     int intialCameraWorldY = cameraWorldY;
 
-    char symbolItem = '-';
-    // Dibujo el mapa del juego.
+    char symbolItem;
+
     for (int x = 0; x < screenWidth; x++)
     {
       for (int y = 0; y < screenHeight; y++)
       {
         Console.SetCursorPosition(x, y);
 
-        if (gameMap.ItemExists(cameraWorldX, cameraWorldY)) symbolItem = gameMap.GetSymbolItem(cameraWorldX, cameraWorldY);
-        else symbolItem = '-';
+        if (gameMap.ItemName(cameraWorldX, cameraWorldY).Equals("Empty")) symbolItem = gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY);
+        else symbolItem = gameMap.GetSymbolItem(cameraWorldX, cameraWorldY);
 
-        if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "L") Console.ForegroundColor = ConsoleColor.DarkYellow;
-        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "W") Console.ForegroundColor = ConsoleColor.Blue;
-        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "S") Console.ForegroundColor = ConsoleColor.Yellow;
-        else if (gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY) == "C") Console.ForegroundColor = ConsoleColor.Gray;
+        if (symbolItem == 'L') Console.ForegroundColor = ConsoleColor.DarkYellow;
+        else if (symbolItem == 'W') Console.ForegroundColor = ConsoleColor.Blue;
+        else if (symbolItem == 'S') Console.ForegroundColor = ConsoleColor.Yellow;
+        else if (symbolItem == 'C') Console.ForegroundColor = ConsoleColor.Gray;
+        else if (symbolItem == 'P') Console.ForegroundColor = ConsoleColor.Cyan;
+        else if (symbolItem == 'D') Console.ForegroundColor = ConsoleColor.Red;
+        else if (symbolItem == 'O') Console.ForegroundColor = ConsoleColor.Yellow;
+        else if (symbolItem == 'T') Console.ForegroundColor = ConsoleColor.Magenta;
         else Console.ForegroundColor = ConsoleColor.Green;
 
-        if (symbolItem != '-')
-        {
-          Console.ForegroundColor = ConsoleColor.Gray;
-          Console.Write(symbolItem);
-        }
-        else Console.Write(gameMap.GetCharTypeSector(cameraWorldX, cameraWorldY));
+        Console.Write(symbolItem);
 
         cameraWorldY++;
       }
@@ -160,4 +138,60 @@ class Program
       cameraWorldX++;
     }
   }
+
+  private static bool CheckCollision(int currentPositionPlayerX, int currentPositionPlayerY, string direction, GameMap gameMap)
+  {
+    if (direction.Equals("right"))
+      return gameMap.MapSectors[currentPositionPlayerX + 1, currentPositionPlayerY].ItemInSector!.HaveCollisionWithItem;
+    
+    if (direction.Equals("left"))
+      return gameMap.MapSectors[currentPositionPlayerX - 1, currentPositionPlayerY].ItemInSector!.HaveCollisionWithItem;
+    
+    if (direction.Equals("up"))
+      return gameMap.MapSectors[currentPositionPlayerX, currentPositionPlayerY - 1].ItemInSector!.HaveCollisionWithItem;
+    
+    if (direction.Equals("down"))
+      return gameMap.MapSectors[currentPositionPlayerX, currentPositionPlayerY + 1].ItemInSector!.HaveCollisionWithItem;
+
+    return false;
+  }
+
+  private static void CheckKeyPressed(ConsoleKeyInfo keyPressed, MainPlayer mainPlayer, GameMap gameMap)
+  {
+    switch (keyPressed.Key)
+    {
+      case ConsoleKey.F1:
+        exitGame = true;
+        break;
+
+      case ConsoleKey.LeftArrow:
+        if (mainPlayer.CurrentPositionWorld.X == 0) break;
+        if (CheckCollision(mainPlayer.CurrentPositionWorld.X, mainPlayer.CurrentPositionWorld.Y, "left", gameMap)) break;
+        mainPlayer.MovePlayer("left");
+        CurrentPositionChScreenX -= 1;
+        break;
+
+      case ConsoleKey.RightArrow:
+        if (mainPlayer.CurrentPositionWorld.X == gameMap.GameMapWidth - 1) break;
+        if (CheckCollision(mainPlayer.CurrentPositionWorld.X, mainPlayer.CurrentPositionWorld.Y, "right", gameMap)) break;
+        mainPlayer.MovePlayer("right");
+        CurrentPositionChScreenX += 1;
+        break;
+
+      case ConsoleKey.UpArrow:
+        if (mainPlayer.CurrentPositionWorld.Y == 0) break;
+        if (CheckCollision(mainPlayer.CurrentPositionWorld.X, mainPlayer.CurrentPositionWorld.Y, "up", gameMap)) break;
+        mainPlayer.MovePlayer("up");
+        CurrentPositionChScreenY -= 1;
+        break;
+
+      case ConsoleKey.DownArrow:
+        if (mainPlayer.CurrentPositionWorld.Y == gameMap.GameMapHeight - 1) break;
+        if (CheckCollision(mainPlayer.CurrentPositionWorld.X, mainPlayer.CurrentPositionWorld.Y, "down", gameMap)) break;
+        mainPlayer.MovePlayer("down");
+        CurrentPositionChScreenY += 1;
+        break;
+    }
+  }
+  #endregion
 }
